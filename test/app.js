@@ -1,43 +1,65 @@
-
+//导入断言模块
 var assert = require('assert')
+//通过上级菜单的index.js导入lib/express
 var express = require('..')
+//导入supertest模块
 var request = require('supertest')
 
+//'app'测试模块
 describe('app', function(){
+  //检测express是否继承自event emitter
   it('should inherit from event emitter', function(done){
+    //生成express对象app
     var app = express();
+    //对事件'foo'设定监听器，若触发'foo'事件，则运行done函数
     app.on('foo', done);
+    //发射'foo'事件，若触发done函数则该测试用例通过
     app.emit('foo');
   })
 
+  //检测express是否是可调用的
   it('should be callable', function(){
     var app = express();
+    //判断express的类型是不是'function'
+    //assert.equal自动执行done
     assert.equal(typeof app, 'function');
   })
 
+  //检测未路由状态下HTTP返回状态码是否是404
   it('should 404 without routes', function(done){
+    //用get方式访问一个空地址
     request(express())
     .get('/')
     .expect(404, done);
   })
 })
 
+//app.paren测试模块
 describe('app.parent', function(){
+
   it('should return the parent when mounted', function(){
     var app = express()
       , blog = express()
       , blogAdmin = express();
 
+    //为app添加新的path'/blog'并对应于blog
     app.use('/blog', blog);
+    //为blog添加新的path'/admin'并对应于blogAdmin
     blog.use('/admin', blogAdmin);
 
+    //等同于assert.equal(!app.parent, true, 'app.parent')
+    //若app.parent不存在，则测试通过
     assert(!app.parent, 'app.parent');
+    //若blog.parent为app，则测试通过
     blog.parent.should.equal(app);
+    //blogAdmin.parent为blog，则测试通过
     blogAdmin.parent.should.equal(blog);
   })
 })
 
+//app.mountpath测试模块
 describe('app.mountpath', function(){
+  //检测是否返回正常的mountpath
   it('should return the mounted path', function(){
     var admin = express();
     var app = express();
