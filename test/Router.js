@@ -1,23 +1,31 @@
 
+//导入after模块
 var after = require('after');
+//通过上级菜单的index.js导入lib/express
+//创建一个新router命名为Router
+//导入方法和断言模块
 var express = require('../')
   , Router = express.Router
   , methods = require('methods')
   , assert = require('assert');
 
+//路由器
 describe('Router', function(){
+  //检测router的函数是否都返回函数
   it('should return a function with router methods', function() {
+    //router本身为function类型
     var router = Router();
     assert(typeof router == 'function');
 
     var router = new Router();
     assert(typeof router == 'function');
-
+    //router下的get,handle,use返回值应都为function
     assert(typeof router.get == 'function');
     assert(typeof router.handle == 'function');
     assert(typeof router.use == 'function');
   });
 
+  //检测路由器是否可以挂载别的路由器
   it('should support .use of other routers', function(done){
     var router = new Router();
     var another = new Router();
@@ -25,6 +33,7 @@ describe('Router', function(){
     another.get('/bar', function(req, res){
       res.end();
     });
+    //挂载另一个路由器作为中间件
     router.use('/foo', another);
 
     router.handle({ url: '/foo/bar', method: 'GET' }, { end: done });

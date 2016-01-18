@@ -42,9 +42,9 @@ describe('app.parent', function(){
       , blog = express()
       , blogAdmin = express();
 
-    //为app添加新的path'/blog'并对应于blog
+    //将中间件blog挂载到'/blog'路径
     app.use('/blog', blog);
-    //为blog添加新的path'/admin'并对应于blogAdmin
+    //将中间件blogAdmin挂载到'/admin'路径
     blog.use('/admin', blogAdmin);
 
     //等同于assert.equal(!app.parent, true, 'app.parent')
@@ -70,6 +70,8 @@ describe('app.mountpath', function(){
     app.use(fallback);
     blog.use('/admin', admin);
 
+    //mountpath类似于baseUrl，即返回其对应的路径
+    //若以下对应mountpath与后值相等，则测试通过
     admin.mountpath.should.equal('/admin');
     app.mountpath.should.equal('/');
     blog.mountpath.should.equal('/blog');
@@ -77,10 +79,13 @@ describe('app.mountpath', function(){
   })
 })
 
+//app.router测试模块
 describe('app.router', function(){
+  //检测是否正常报错
   it('should throw with notice', function(done){
-    var app = express()
 
+    var app = express();
+    //此处app尚未添加router组件，throw出错误即通过测试
     try {
       app.router;
     } catch(err) {
@@ -89,7 +94,9 @@ describe('app.router', function(){
   })
 })
 
+//app.path()函数测试模块
 describe('app.path()', function(){
+  //应当返回规范路径
   it('should return the canonical', function(){
     var app = express()
       , blog = express()
@@ -98,35 +105,51 @@ describe('app.path()', function(){
     app.use('/blog', blog);
     blog.use('/admin', blogAdmin);
 
+    //app对应路径应为'/'
     app.path().should.equal('');
+    //blog对应路径应为'/blog'
     blog.path().should.equal('/blog');
+    //blogAdmin对应路径应为'/blog/admin'
     blogAdmin.path().should.equal('/blog/admin');
   })
 })
 
+//development环境测试模块
 describe('in development', function(){
   it('should disable "view cache"', function(){
+    //通过修改环境变量转换成development环境
     process.env.NODE_ENV = 'development';
     var app = express();
+    //development环境应该不可以查看缓存
     app.enabled('view cache').should.be.false;
+    //通过修改环境变量改回test环境
     process.env.NODE_ENV = 'test';
   })
 })
 
+//使用环境测试模块
 describe('in production', function(){
   it('should enable "view cache"', function(){
+    //通过修改环境变量转换成production环境
     process.env.NODE_ENV = 'production';
     var app = express();
+    //production环境应该可以查看缓存
     app.enabled('view cache').should.be.true;
+    //通过修改环境变量改回test环境
     process.env.NODE_ENV = 'test';
   })
 })
 
+//检测默认环境
 describe('without NODE_ENV', function(){
+  //默认环境应该为development
   it('should default to development', function(){
+    //将环境变量置为空置
     process.env.NODE_ENV = '';
     var app = express();
+    //环境变量置为空置时的默认值应该为development
     app.get('env').should.equal('development');
+    //通过修改环境变量改回test环境
     process.env.NODE_ENV = 'test';
   })
 })
